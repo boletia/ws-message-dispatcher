@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/lambda"
+	log "github.com/sirupsen/logrus"
 )
 
 type payloadLambdaRequest struct {
@@ -26,6 +27,10 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 	connectionsPerLambdaMod := connectionsLen % maxRequestPerLambda
 
 	suitableForSingleLambda := connectionsPerLambda <= 1 || (connectionsLen == 1 && connectionsPerLambdaMod <= maxRequestGraceSingleLambda)
+
+	log.WithFields(log.Fields{
+		"suitableForSingleLambda": suitableForSingleLambda,
+	}).Info("suitableForSingleLambda")
 
 	if suitableForSingleLambda {
 		payload := payloadLambdaRequest{
@@ -55,6 +60,10 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 
 func (s sender) LambdaHandler(payload payloadLambdaRequest) {
 
+	log.WithFields(log.Fields{
+		"sending": "i am in lambdahandler",
+	}).Info("sending")
+
 	payloadJSON, err := json.Marshal(payload)
 
 	if err != nil {
@@ -66,6 +75,15 @@ func (s sender) LambdaHandler(payload payloadLambdaRequest) {
 		Payload:      payloadJSON,
 	}
 
-	s.Invoke(input)
+	result, err := s.Invoke(input)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"sending": "error sending",
+		}).Error(err)
+	}
+	log.WithFields(log.Fields{
+		"payload": string(result.Payload),
+	}).Info(string(result.Payload))
 
 }

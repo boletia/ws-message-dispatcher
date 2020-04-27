@@ -6,25 +6,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-var (
-	awsRegion     = "us-east-1"
-	dynamodbTable = "streaming-users-online"
-)
-
 type storage struct {
 	*dynamodb.DynamoDB
+	table string
 }
 
 // New creates new dynamodb client
-func New() storage {
+func New(region, table string) storage {
 	sess := session.Must(
 		session.NewSession(&aws.Config{
-			Region: &awsRegion},
+			Region: &region},
 		),
 	)
 	dynamoDB := dynamodb.New(sess)
 
 	return storage{
 		dynamoDB,
+		table,
 	}
 }

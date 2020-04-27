@@ -1,8 +1,14 @@
 package sender
 
-type sender struct{}
+type sender struct {
+	awsRegion      string
+	lambdaFunction string
+}
 
 // New Creates new sender instance
-func New() sender {
-	return sender{}
+func New(region, funcName string) sender {
+	return sender{
+		awsRegion:      region,
+		lambdaFunction: funcName,
+	}
 }

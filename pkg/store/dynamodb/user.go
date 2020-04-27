@@ -46,7 +46,7 @@ func (db storage) GetUserConnections(subdomain string, audienceType string, conn
 		ExpressionAttributeValues: expr.Values(),
 		FilterExpression:          expr.Filter(),
 		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(dynamodbTable),
+		TableName:                 aws.String(db.table),
 	}
 
 	output := &dynamodb.ScanOutput{}
@@ -59,7 +59,7 @@ func (db storage) GetUserConnections(subdomain string, audienceType string, conn
 			ExpressionAttributeNames:  expr.Names(),
 			ExpressionAttributeValues: expr.Values(),
 			FilterExpression:          expr.Filter(),
-			TableName:                 aws.String(dynamodbTable),
+			TableName:                 aws.String(db.table),
 		}
 		input.ExclusiveStartKey = output.LastEvaluatedKey
 	}

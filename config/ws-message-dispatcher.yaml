@@ -1,0 +1,10 @@
+lambda:
+  region: "us-east-1"
+  function: "some-function"
+
+dynamodb:
+  region: "us-east-1"
+  table: "streaming-users-online"
+
+http:
+  host: ":8888"

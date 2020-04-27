@@ -56,6 +56,7 @@ func (s service) dispatchMessage(msg incomeMessage) {
 		"connections": connections,
 	}).Info("connections")
 
+	s.sender.SendMessage(connections, msg.Message)
 	// Calculate batch send message
 	// call MessageSender lambda process
 

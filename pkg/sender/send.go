@@ -52,12 +52,12 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 
 		wg.Add(1)
 		s.LambdaHandler(payload, &wg)
-    
+
 		log.WithFields(log.Fields{
 			"sending_to_n_connections": suitableForSingleLambda,
 		}).Info("SendMessage")
-		s.LambdaHandler(payload)
-    
+		s.LambdaHandler(payload, &wg)
+
 	} else {
 		for idx := 0; idx < connectionsLen; idx += maxRequestPerLambda {
 
@@ -72,11 +72,11 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 			} else {
 				payload.ConnectionIDS = connections[idx:sliceEnd]
 			}
-      
-      log.WithFields(log.Fields{
+
+			log.WithFields(log.Fields{
 				"sending_to_n_connections": len(payload.ConnectionIDS),
 			}).Info("SendMessage")
-      
+
 			wg.Add(1)
 			go s.LambdaHandler(payload, &wg)
 		}

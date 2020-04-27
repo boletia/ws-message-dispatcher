@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/boletia/container-events/config"
-	"github.com/boletia/container-events/pkg/sender"
-	"github.com/boletia/container-events/pkg/service"
-	"github.com/boletia/container-events/pkg/store/dynamodb"
+	"github.com/boletia/ws-message-dispatcher/config"
+	"github.com/boletia/ws-message-dispatcher/pkg/sender"
+	"github.com/boletia/ws-message-dispatcher/pkg/service"
+	"github.com/boletia/ws-message-dispatcher/pkg/store/dynamodb"
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
 )

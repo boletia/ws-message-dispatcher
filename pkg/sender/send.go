@@ -3,8 +3,11 @@ package sender
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
+	"time"
 
 	"github.com/aws/aws-sdk-go/service/lambda"
+	log "github.com/sirupsen/logrus"
 )
 
 type payloadLambdaRequest struct {
@@ -19,8 +22,17 @@ const maxRequestGraceSingleLambda = maxRequestPerLambda * percentageGraceSingleL
 
 // SendMessage send messages to ws-MessageSender lambda
 func (s sender) SendMessage(connections []string, msg interface{}) {
-
+	var wg sync.WaitGroup
+	startTime := time.Now()
 	connectionsLen := len(connections)
+
+	defer func() {
+		elapseTime := time.Since(startTime)
+		log.WithFields(log.Fields{
+			"total-connections": connectionsLen,
+			"elapse-time":       elapseTime,
+		}).Info("connection time")
+	}()
 
 	connectionsPerLambda := connectionsLen / maxRequestPerLambda
 	connectionsPerLambdaMod := connectionsLen % maxRequestPerLambda
@@ -32,7 +44,8 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 			Message:       msg,
 			ConnectionIDS: connections,
 		}
-		s.LambdaHandler(payload)
+		wg.Add(1)
+		s.LambdaHandler(payload, &wg)
 	} else {
 		for idx := 0; idx < connectionsLen; idx += maxRequestPerLambda {
 
@@ -47,13 +60,16 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 			} else {
 				payload.ConnectionIDS = connections[idx:sliceEnd]
 			}
-			go s.LambdaHandler(payload)
+			wg.Add(1)
+			go s.LambdaHandler(payload, &wg)
 		}
 	}
 
+	wg.Wait()
 }
 
-func (s sender) LambdaHandler(payload payloadLambdaRequest) {
+func (s sender) LambdaHandler(payload payloadLambdaRequest, wg *sync.WaitGroup) {
+	defer wg.Done()
 
 	payloadJSON, err := json.Marshal(payload)
 

@@ -44,8 +44,9 @@ func TestTakeIn(t *testing.T) {
 		rec := httptest.NewRecorder()
 		context := e.NewContext(req, rec)
 
-		userStorage := uStorage{}
-		srv := New(userStorage)
+		userStorage := connGetter{}
+		mSender := msgSender{}
+		srv := New(userStorage, mSender)
 
 		t.Run(c.testName, func(t *testing.T) {
 			if assert.NoError(t, srv.TakeIn(context)) {
@@ -56,8 +57,14 @@ func TestTakeIn(t *testing.T) {
 	}
 }
 
-type uStorage struct{}
+type connGetter struct{}
 
-func (us uStorage) GetUserConnections(eventSubdomain string, audienceType string, connections *[]string) error {
+func (cg connGetter) GetUserConnections(eventSubdomain string, audienceType string, connections *[]string) error {
 	return nil
+}
+
+type msgSender struct{}
+
+func (ms msgSender) SendMessage(connections []string, msg interface{}) {
+
 }

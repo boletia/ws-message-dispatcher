@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/boletia/container-events/pkg/sender"
 	"github.com/boletia/container-events/pkg/service"
 	"github.com/boletia/container-events/pkg/store/dynamodb"
 	"github.com/labstack/echo"
@@ -15,6 +16,7 @@ func main() {
 
 	srv := service.New(
 		dynamodb.New(),
+		sender.New(),
 	)
 
 	e := echo.New()

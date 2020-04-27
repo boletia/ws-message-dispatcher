@@ -1,6 +1,6 @@
 lambda:
   region: "us-east-1"
-  function: "some-function"
+  function: "pro-streaming-ws-messagesender"
 
 dynamodb:
   region: "us-east-1"

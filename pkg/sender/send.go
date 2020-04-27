@@ -30,13 +30,17 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 
 	log.WithFields(log.Fields{
 		"suitableForSingleLambda": suitableForSingleLambda,
-	}).Info("suitableForSingleLambda")
+		"ConnectionIDS Length":    connectionsLen,
+	}).Info("SendMessage")
 
 	if suitableForSingleLambda {
 		payload := payloadLambdaRequest{
 			Message:       msg,
 			ConnectionIDS: connections,
 		}
+		log.WithFields(log.Fields{
+			"sending_to_n_connections": suitableForSingleLambda,
+		}).Info("SendMessage")
 		s.LambdaHandler(payload)
 	} else {
 		for idx := 0; idx < connectionsLen; idx += maxRequestPerLambda {
@@ -52,6 +56,11 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 			} else {
 				payload.ConnectionIDS = connections[idx:sliceEnd]
 			}
+
+			log.WithFields(log.Fields{
+				"sending_to_n_connections": len(payload.ConnectionIDS),
+			}).Info("SendMessage")
+
 			go s.LambdaHandler(payload)
 		}
 	}
@@ -59,10 +68,6 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 }
 
 func (s sender) LambdaHandler(payload payloadLambdaRequest) {
-
-	log.WithFields(log.Fields{
-		"sending": "i am in lambdahandler",
-	}).Info("sending")
 
 	payloadJSON, err := json.Marshal(payload)
 
@@ -79,11 +84,10 @@ func (s sender) LambdaHandler(payload payloadLambdaRequest) {
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"sending": "error sending",
-		}).Error(err)
+			"error": err,
+		}).Error("LambdaHandler")
 	}
 	log.WithFields(log.Fields{
-		"payload": string(result.Payload),
-	}).Info(string(result.Payload))
-
+		"result_lambda": result,
+	}).Error("LambdaHandler")
 }

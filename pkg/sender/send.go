@@ -31,7 +31,7 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 		log.WithFields(log.Fields{
 			"total-connections": connectionsLen,
 			"elapse-time":       elapseTime,
-		}).Info("connection time")
+		}).Info("lambda working time")
 	}()
 
 	connectionsPerLambda := connectionsLen / maxRequestPerLambda
@@ -50,13 +50,12 @@ func (s sender) SendMessage(connections []string, msg interface{}) {
 			ConnectionIDS: connections,
 		}
 
-		wg.Add(1)
-		s.LambdaHandler(payload, &wg)
-
 		log.WithFields(log.Fields{
 			"sending_to_n_connections": suitableForSingleLambda,
 		}).Info("SendMessage")
-		s.LambdaHandler(payload, &wg)
+
+		wg.Add(1)
+		go s.LambdaHandler(payload, &wg)
 
 	} else {
 		for idx := 0; idx < connectionsLen; idx += maxRequestPerLambda {

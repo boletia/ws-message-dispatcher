@@ -2,7 +2,6 @@ package sender
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
@@ -88,9 +87,11 @@ func (s sender) LambdaHandler(payload payloadLambdaRequest, wg *sync.WaitGroup) 
 	defer wg.Done()
 
 	payloadJSON, err := json.Marshal(payload)
-
 	if err != nil {
-		fmt.Println("Json Marshalling error")
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Json Marshalling error")
+		return
 	}
 
 	input := &lambda.InvokeInput{
@@ -99,13 +100,13 @@ func (s sender) LambdaHandler(payload payloadLambdaRequest, wg *sync.WaitGroup) 
 	}
 
 	result, err := s.Invoke(input)
-
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Error("LambdaHandler")
 	}
+
 	log.WithFields(log.Fields{
 		"result_lambda": result,
-	}).Error("LambdaHandler")
+	}).Info("LambdaHandler")
 }

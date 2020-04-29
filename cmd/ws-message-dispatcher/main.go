@@ -17,7 +17,7 @@ func main() {
 		DisableLevelTruncation: true,
 	})
 
-	cnf, err := config.ReadConfig()
+	cnf, err := config.Read()
 	if err != nil {
 		os.Exit(1)
 	}

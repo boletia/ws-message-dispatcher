@@ -1,0 +1,24 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user/apps/ws-message-dispatcher
+permissions:
+  - object: /home/ec2-user/apps/ws-message-dispatcher
+    user: ec2-user
+    group: ec2-user
+    pattern: "*"
+    mode: 775
+    type:
+      - file
+      - directory
+hooks:
+  BeforeInstall:
+    - location: deployment_scripts/arrange-deployment-folders.sh
+      runas: root
+  AfterInstall:
+    - location: deployment_scripts/compile-assets.sh
+      runas: ec2-user
+  ApplicationStart:
+    - location: deployment_scripts/finish-installation.sh
+      runas: ec2-user

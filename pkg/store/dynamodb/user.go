@@ -3,7 +3,6 @@ package dynamodb
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 )
 
@@ -64,17 +63,13 @@ func (db storage) GetUserConnections(subdomain string, audienceType string, conn
 }
 
 func appendResults(items []map[string]*dynamodb.AttributeValue, connections *[]string) error {
-	conns := []struct {
-		ConectionID string `json:"connection_id"`
-	}{}
-
-	if err := dynamodbattribute.UnmarshalListOfMaps(items, &conns); err != nil {
-		return err
+	for _, item := range items {
+		if attr, exists := item[connectionIDLabel]; exists {
+			id := *attr.S
+			if len(id) > 0 {
+				*connections = append(*connections, id)
+			}
+		}
 	}
-
-	for _, conn := range conns {
-		*connections = append(*connections, conn.ConectionID)
-	}
-
 	return nil
 }

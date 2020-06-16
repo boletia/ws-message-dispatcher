@@ -8,6 +8,7 @@ import (
 	"github.com/boletia/ws-message-dispatcher/pkg/service"
 	"github.com/boletia/ws-message-dispatcher/pkg/store/dynamodb"
 	"github.com/labstack/echo"
+	"github.com/sevenNt/echo-pprof"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -29,6 +30,7 @@ func main() {
 
 	e := echo.New()
 	e.POST("/", srv.TakeIn)
+	echopprof.Wrap(e)
 
 	e.Logger.Fatal(e.Start(cnf.Service.Host))
 }

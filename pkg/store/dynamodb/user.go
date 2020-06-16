@@ -49,29 +49,15 @@ func (db storage) GetUserConnections(subdomain string, audienceType string, conn
 		TableName:                 aws.String(db.table),
 	}
 
-	output := &dynamodb.ScanOutput{}
-	for output, err = db.Scan(input); len(output.LastEvaluatedKey) != 0 && err == nil; output, err = db.Scan(input) {
+	db.ScanPages(input, func(output *dynamodb.ScanOutput, lastPage bool) bool {
 		if err = appendResults(output.Items, connections); err != nil {
-			return err
+			return false
 		}
-
-		input = &dynamodb.ScanInput{
-			ExpressionAttributeNames:  expr.Names(),
-			ExpressionAttributeValues: expr.Values(),
-			FilterExpression:          expr.Filter(),
-			TableName:                 aws.String(db.table),
-		}
-		input.ExclusiveStartKey = output.LastEvaluatedKey
-	}
+		return true
+	})
 
 	if err != nil {
 		return err
-	}
-
-	if *output.Count > 0 {
-		if err = appendResults(output.Items, connections); err != nil {
-			return err
-		}
 	}
 
 	return nil

@@ -14,7 +14,7 @@ type payloadLambdaRequest struct {
 	ConnectionIDS []string    `json:"connection_ids"`
 }
 
-const maxRequestPerLambda = 100
+const maxRequestPerLambda = 3000
 const percentageGraceSingleLambda = .2
 
 const maxRequestGraceSingleLambda = maxRequestPerLambda * percentageGraceSingleLambda

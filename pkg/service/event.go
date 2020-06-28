@@ -8,6 +8,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	apiGatewayChat = "api-gateway"
+	neermeChat     = "neerme-v2"
+)
+
 type incomeMessage struct {
 	EventSubdomain string      `json:"event_subdomain"`
 	AudienceType   string      `json:"audience_type"`
@@ -44,20 +49,37 @@ func (s service) TakeIn(c echo.Context) error {
 func (s service) dispatchMessage(msg incomeMessage) {
 	var connections []string
 
-	// Get user connection's list
-	if err := s.dbUser.GetUserConnections(msg.EventSubdomain, msg.AudienceType, &connections); err != nil {
+	chatType, err := s.dbUser.GetChatType()
+	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Error("unable to get user connections")
+		}).Error("unable to get chat type")
 		return
 	}
 
-	log.WithFields(log.Fields{
-		"connections": connections,
-	}).Info("connections")
+	switch chatType {
+	case apiGatewayChat:
+		log.WithFields(log.Fields{"chat-type": apiGatewayChat}).Info("sending messages")
+		if err := s.dbUser.GetUserConnections(msg.EventSubdomain, msg.AudienceType, &connections); err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("unable to get user connections")
+			return
+		}
 
-	s.sender.SendMessage(connections, msg.Message)
-	// Calculate batch send message
-	// call MessageSender lambda process
+		log.WithFields(log.Fields{
+			"connections": connections,
+		}).Info("connections")
 
+		s.sender.SendMessage(connections, msg.Message)
+
+	case neermeChat:
+		log.WithFields(log.Fields{"chat-type": neermeChat}).Info("sending messages")
+		s.neermeChat(msg)
+
+	default:
+		log.WithFields(log.Fields{
+			"type": chatType,
+		}).Error("unknow chat type")
+	}
 }

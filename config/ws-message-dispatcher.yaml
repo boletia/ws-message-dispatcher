@@ -4,7 +4,9 @@ lambda:
 
 dynamodb:
   region: "us-east-1"
-  table: "streaming-users-online"
+  users-table: "streaming-users-online"
+  servers-table: "chat-servers"
+  chat-config-table: "streaming-dispatcher-config"
 
 http:
   host: ":8888"

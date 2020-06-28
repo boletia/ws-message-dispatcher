@@ -45,7 +45,7 @@ func (db storage) GetUserConnections(subdomain string, audienceType string, conn
 		ExpressionAttributeValues: expr.Values(),
 		FilterExpression:          expr.Filter(),
 		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(db.table),
+		TableName:                 aws.String(db.usersTable),
 	}
 
 	db.ScanPages(input, func(output *dynamodb.ScanOutput, lastPage bool) bool {

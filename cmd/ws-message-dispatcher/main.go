@@ -8,7 +8,7 @@ import (
 	"github.com/boletia/ws-message-dispatcher/pkg/service"
 	"github.com/boletia/ws-message-dispatcher/pkg/store/dynamodb"
 	"github.com/labstack/echo"
-	"github.com/sevenNt/echo-pprof"
+	echopprof "github.com/sevenNt/echo-pprof"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	}
 
 	srv := service.New(
-		dynamodb.New(cnf.Dynamo.Region, cnf.Dynamo.Table),
+		dynamodb.New(cnf),
 		sender.New(cnf.Lambda.Region, cnf.Lambda.Function),
 	)
 

@@ -63,6 +63,14 @@ func (cg connGetter) GetUserConnections(eventSubdomain string, audienceType stri
 	return nil
 }
 
+func (cg connGetter) GetServerConnections(servers map[string]int) error {
+	return nil
+}
+
+func (cg connGetter) GetChatType() (string, error) {
+	return "", nil
+}
+
 type msgSender struct{}
 
 func (ms msgSender) SendMessage(connections []string, msg interface{}) {

@@ -48,14 +48,6 @@ func (s service) TakeIn(c echo.Context) error {
 }
 
 func (s service) dispatchMessage(msg incomeMessage) {
-	chatType, err := s.dbUser.GetChatType()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("unable to get chat type")
-		return
-	}
-
 	switch msg.GatewayType {
 	case apiGatewayChat:
 		log.WithFields(log.Fields{"chat-type": apiGatewayChat}).Info("sending messages")
@@ -66,7 +58,7 @@ func (s service) dispatchMessage(msg incomeMessage) {
 		s.neermeChat(msg)
 
 	default:
-		log.WithFields(log.Fields{"type": chatType, "default": apiGatewayChat}).Info("using default gateway")
+		log.WithFields(log.Fields{"type": msg.GatewayType, "default": apiGatewayChat}).Info("using default gateway")
 		s.apigateway(msg)
 	}
 }

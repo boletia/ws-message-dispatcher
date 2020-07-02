@@ -4,7 +4,6 @@ package service
 type connectionGetter interface {
 	GetUserConnections(eventSubdomain string, audienceType string, connections *[]string) error
 	GetServerConnections(servers map[string]int) error
-	GetChatType() (string, error)
 }
 
 type messageSender interface {

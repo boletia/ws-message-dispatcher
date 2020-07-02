@@ -10,12 +10,13 @@ import (
 
 const (
 	apiGatewayChat = "api-gateway"
-	neermeChat     = "neerme-v2"
+	neermeChat     = "chat-server-v2"
 )
 
 type incomeMessage struct {
 	EventSubdomain string      `json:"event_subdomain"`
 	AudienceType   string      `json:"audience_type"`
+	GatewayType    string      `json:"gateway_type,ommitempty"`
 	Message        interface{} `json:"message"`
 }
 
@@ -47,8 +48,6 @@ func (s service) TakeIn(c echo.Context) error {
 }
 
 func (s service) dispatchMessage(msg incomeMessage) {
-	var connections []string
-
 	chatType, err := s.dbUser.GetChatType()
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -57,29 +56,34 @@ func (s service) dispatchMessage(msg incomeMessage) {
 		return
 	}
 
-	switch chatType {
+	switch msg.GatewayType {
 	case apiGatewayChat:
 		log.WithFields(log.Fields{"chat-type": apiGatewayChat}).Info("sending messages")
-		if err := s.dbUser.GetUserConnections(msg.EventSubdomain, msg.AudienceType, &connections); err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("unable to get user connections")
-			return
-		}
-
-		log.WithFields(log.Fields{
-			"connections": connections,
-		}).Info("connections")
-
-		s.sender.SendMessage(connections, msg.Message)
+		s.apigateway(msg)
 
 	case neermeChat:
 		log.WithFields(log.Fields{"chat-type": neermeChat}).Info("sending messages")
 		s.neermeChat(msg)
 
 	default:
-		log.WithFields(log.Fields{
-			"type": chatType,
-		}).Error("unknow chat type")
+		log.WithFields(log.Fields{"type": chatType, "default": apiGatewayChat}).Info("using default gateway")
+		s.apigateway(msg)
 	}
+}
+
+func (s service) apigateway(msg incomeMessage) {
+	var connections []string
+
+	if err := s.dbUser.GetUserConnections(msg.EventSubdomain, msg.AudienceType, &connections); err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("unable to get user connections")
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"connections": connections,
+	}).Info("connections")
+
+	s.sender.SendMessage(connections, msg.Message)
 }

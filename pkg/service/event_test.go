@@ -18,8 +18,20 @@ func TestTakeIn(t *testing.T) {
 		expectedHTTPStatusCode int
 	}{
 		{
-			testName:               "RegularCase",
+			testName:               "DefaultRegularCase",
 			requestPost:            `{ "event_subdomain":"el-show-de-producto-online", "audience_type":"attendance", "message": { "active": false, "answers": [ { "id": "ANSWER-ID-0", "option_label": "indeed", "total": 1 }, { "id": "ANSWER-ID-1", "option_label": "indeednt", "total": 0 } ] } }`,
+			expectedResponse:       "{\"success\":true}\n",
+			expectedHTTPStatusCode: http.StatusOK,
+		},
+		{
+			testName:               "ApiGatewayRegularCase",
+			requestPost:            `{ "gateway_type": "api-gateway", "event_subdomain":"el-show-de-producto-online", "audience_type":"attendance", "message": { "active": false, "answers": [ { "id": "ANSWER-ID-0", "option_label": "indeed", "total": 1 }, { "id": "ANSWER-ID-1", "option_label": "indeednt", "total": 0 } ] } }`,
+			expectedResponse:       "{\"success\":true}\n",
+			expectedHTTPStatusCode: http.StatusOK,
+		},
+		{
+			testName:               "NeermeV2RegularCase",
+			requestPost:            `{ "gateway_type": "chat-server-v2", "event_subdomain":"el-show-de-producto-online", "audience_type":"attendance", "message": { "active": false, "answers": [ { "id": "ANSWER-ID-0", "option_label": "indeed", "total": 1 }, { "id": "ANSWER-ID-1", "option_label": "indeednt", "total": 0 } ] } }`,
 			expectedResponse:       "{\"success\":true}\n",
 			expectedHTTPStatusCode: http.StatusOK,
 		},

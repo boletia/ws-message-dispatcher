@@ -11,12 +11,15 @@ import (
 var (
 	serversIDLabel   = "ip"
 	serversPortLabel = "port"
+	serverTypeLabel  = "server_type"
+	serverType       = "chat"
 )
 
 func (db storage) GetServerConnections(servers map[string]int) error {
 
 	projection := expression.NamesList(expression.Name(serversIDLabel), expression.Name(serversPortLabel))
-	expr, err := expression.NewBuilder().WithProjection(projection).Build()
+	filter := expression.Name(serverTypeLabel).Equal(expression.Value(serverType))
+	expr, err := expression.NewBuilder().WithFilter(filter).WithProjection(projection).Build()
 	if err != nil {
 		return err
 	}

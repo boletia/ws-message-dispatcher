@@ -1,0 +1,27 @@
+version: "3.3"
+
+services:
+  ws-message-dispatcher:
+    restart: "always"
+    build: 
+        context: .
+    platform: linux/x86_64
+    stdin_open: true
+    tty: true
+    ports:
+      - "3003:8888"
+    volumes:
+      - .:/app:rw
+    networks:
+      - neerme
+    environment:
+      APPNAME: "ws-message-dispatcher"
+      GOOS: "linux"
+      GOARCH: "amd64"
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      AWS_REGION: "us-east-1"
+
+networks:
+  neerme:
+    external: true
